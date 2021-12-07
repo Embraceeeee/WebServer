@@ -1,6 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
+	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
+	<classpathentry exported="true" kind="lib" path="F:/Maven_File/jackson-dataformat-xml-2.10.1.jar" sourcepath="C:/Users/Z20061150/.m2/repository/com/fasterxml/jackson/dataformat/jackson-dataformat-xml/2.10.1/jackson-dataformat-xml-2.10.1-sources.jar"/>
+	<classpathentry exported="true" kind="lib" path="F:/Maven_File/woodstox-core-asl-4.4.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="F:/Maven_File/jackson-core-2.10.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="F:/Maven_File/jackson-databind-2.10.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="F:/Maven_File/jackson-annotations-2.10.1.jar"/>
+	<classpathentry kind="lib" path="F:/Maven_File/woodstox-core-6.0.2.jar"/>
+	<classpathentry kind="lib" path="F:/Maven_File/stax2-api-4.2.jar"/>
+	<classpathentry kind="lib" path="F:/Maven_File/jakarta.xml.bind-api-2.3.2.jar"/>
+	<classpathentry kind="lib" path="F:/Maven_File/jakarta.activation-api-1.2.1.jar"/>
+	<classpathentry kind="lib" path="F:/Maven_File/jackson-module-jaxb-annotations-2.10.1.jar"/>
+	<classpathentry kind="lib" path="F:/Maven_File/stax-api-1.0-2.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -1,4 +1,4 @@
-package com.demo.tcp;
+package com.demo.tcp.java;
 
 import java.net.*;
 import java.io.*;

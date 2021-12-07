@@ -1,21 +1,34 @@
-package com.demo.tcp;
+package com.demo.tcp.java;
 
 import java.net.*;
 
 import javax.net.ssl.SSLSocketFactory;
 
+import com.fasterxml.jackson.dataformat.xml.JacksonXmlModule;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+
 import java.io.*;
 
 public class HTTPGetClient {
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception  {
+		
+		
+		InputStream input = Server.class.getResourceAsStream("../config/config.xml");
+		JacksonXmlModule module = new JacksonXmlModule();
+		// 核心对象
+		XmlMapper mapper = new XmlMapper(module);
+		// 读取字节流并返回一个 JavaBean
+		Config config = (Config)mapper.readValue(input, Config.class);
 
 		try {
 
 			// 使用互联网协议地址类，获取本地local主机
 			InetAddress inetAddress = InetAddress.getLocalHost();
-			String serverName = inetAddress.getHostName();
-			int port = 4000;
+//			String serverName = inetAddress.getHostName();
+//			int port = 4000;
+			String serverName = config.ip;
+			int port = config.port;
 
 			System.out.println("serverName：" + serverName + ";port:" + port);
 			// http下就用 Socket
