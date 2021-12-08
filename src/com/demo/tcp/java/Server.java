@@ -11,14 +11,14 @@ import java.io.*;
 
 
 /**
- * 采用多线程实现的Server
+ * 采用多线程实现接收每个客户端的Server （加入了config）
  * @author Embraceeeee
  *
  */
 public class Server {
 
-	public static void main(String[] args) throws Exception  {
-		// TODO Auto-generated method stub
+	public static void main(String[] args) throws Exception  { 
+		
 		
 		
 		InputStream input = Server.class.getResourceAsStream("../config/config.xml");
@@ -84,6 +84,7 @@ class ClientThread extends Thread {
 		
 		for (;;) {
 			String s = reader.readLine();
+			System.out.println("readLine:"+s);
 			// 
 			if (s.indexOf("GET") != -1) {
 				System.out.println("准备写 html");

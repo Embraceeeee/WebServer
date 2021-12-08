@@ -1,4 +1,6 @@
 eclipse.preferences.version=1
 encoding//src/com/demo/tcp/java/HTTPGetClient.java=UTF-8
 encoding//src/com/demo/tcp/java/HTTPServer.java=UTF-8
+encoding//src/com/demo/tcp/java/NioClient.java=UTF-8
+encoding//src/com/demo/tcp/java/NioServer.java=UTF-8
 encoding//src/com/demo/tcp/java/Server.java=UTF-8
