@@ -36,6 +36,11 @@ public class NioServer {
 
 	}
 
+	/**
+	 * accept操作
+	 * @param key
+	 * @throws IOException
+	 */
 	public static void handleAccept(SelectionKey key) throws IOException {
 
 		ServerSocketChannel ssChannel = (ServerSocketChannel) key.channel();
@@ -45,6 +50,11 @@ public class NioServer {
 		System.out.println("client address:" + sc.getRemoteAddress());
 	}
 
+	/**
+	 * 读取数据操作
+	 * @param key
+	 * @throws IOException
+	 */
 	public static void handleRead(SelectionKey key) throws IOException {
 
 		SocketChannel sc = (SocketChannel) key.channel();
@@ -64,7 +74,6 @@ public class NioServer {
 			System.out.println("string buffer :" + httpRequestBuf.toString());
 			// 对这个字符串进行换行分割
 			String[] httpRequestArray = splitHttpRequestBuf(httpRequestBuf);
-
 			// 解析数据
 			HttpRequest request = parseHttpRequestArray(httpRequestArray);
 			// 打印
@@ -78,12 +87,23 @@ public class NioServer {
 		}
 	}
 
+	/**
+	 * 依据换行符号分割 web浏览器的请求String， 分割成数组  
+	 * @param httpRequestBuf
+	 * @return 
+	 */
 	private static String[] splitHttpRequestBuf(StringBuffer httpRequestBuf) {
 
 		String delimeter = "\r\n";
 		return httpRequestBuf.toString().split(delimeter);
 	}
 
+	/**
+	 *  对 请求数组进行解析，转成请求行、请求头相关信息
+	 *  TODO: 没考虑有request body的情况，后续看看怎么解析
+	 * @param httpRequestArray
+	 * @return
+	 */
 	private static HttpRequest parseHttpRequestArray(String[] httpRequestArray) {
 
 		HttpRequest request = new HttpRequest();
@@ -100,12 +120,13 @@ public class NioServer {
 		}
 		request.method = reLineArray[0];
 		request.resource = reLineArray[1];
+		// 提取版本信息
 		request.httpVersion = extractVersion(reLineArray[2]);
 
 		// 解析 请求头
 		for (int i = 1; i < httpRequestArray.length; i++) {
 			if (httpRequestArray[i] == "") {
-				System.out.println(" 解析 请求头的for循环  在当前i:" + i + " 这里停下来了");
+				System.out.println("parse request header for loop i stop:" + i );
 				break;
 			}
 			String sHeader = httpRequestArray[i];
@@ -120,13 +141,23 @@ public class NioServer {
 		return request;
 	}
 
+	/**
+	 * 从类似HTTP/1.1 这样字符串中提取数字 
+	 * @param s
+	 * @return
+	 */
 	private static float extractVersion(String s) {
 
-		// 如输入 HTTP/1.1 截取/后面的数字1.1 
+		// 如输入 HTTP/1.1 截取/后面的数字1.1
 		int index = s.indexOf("/");
 		return Float.parseFloat(s.substring(index + 1, s.length()));
 	}
 
+	/**
+	 * 写数据操作
+	 * @param key
+	 * @throws IOException
+	 */
 	public static void handleWrite(SelectionKey key) throws IOException {
 
 		ByteBuffer buf = (ByteBuffer) key.attachment();
@@ -140,6 +171,10 @@ public class NioServer {
 		buf.compact();
 	}
 
+	/**
+	 *  根据selector判断哪个channel需要做什么操作
+	 * @param port
+	 */
 	public static void selector(int port) {
 
 		Selector selector = null;
@@ -158,6 +193,7 @@ public class NioServer {
 			ssc.register(selector, SelectionKey.OP_ACCEPT);
 
 			while (true) {
+
 				if (selector.select(TIMEOUT) == 0) {
 					System.out.println("server ==");
 					continue;
@@ -179,7 +215,7 @@ public class NioServer {
 						handleWrite(key);
 					}
 					if (key.isConnectable()) {
-						System.out.println("is Connecting ... ");
+						System.out.println("is Connecting ...  ");
 					}
 					// 该方法移除的是iterator.next() 最后访问的元素.
 					iter.remove();
