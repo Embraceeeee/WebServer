@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<config>
-	<ip>localhost</ip>
-	<port>5000</port>
-	<htmlFilePath>src\\com\\demo\\tcp\\config\\page.html</htmlFilePath>
-</config>

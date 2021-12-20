@@ -78,6 +78,8 @@ public class NioServer {
 			HttpRequest request = parseHttpRequestArray(httpRequestArray);
 			// 打印
 			System.out.println(request.toString());
+			
+			
 
 			buf.clear();
 			bytesRead = sc.read(buf);
@@ -122,7 +124,6 @@ public class NioServer {
 		request.resource = reLineArray[1];
 		// 提取版本信息
 		request.httpVersion = extractVersion(reLineArray[2]);
-
 		// 解析 请求头
 		for (int i = 1; i < httpRequestArray.length; i++) {
 			if (httpRequestArray[i] == "") {
@@ -169,6 +170,13 @@ public class NioServer {
 		}
 		// buf中暂未读完的数据先暂存
 		buf.compact();
+	}
+	
+	
+	public static void writeHtml(SelectionKey key){
+		
+		
+		
 	}
 
 	/**
