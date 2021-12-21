@@ -217,13 +217,14 @@ public class NioServer {
 				while ((fileLine = fileReader.readLine()) != null) {
 					fileContent += (fileLine + "\r\n");
 				}
-				ByteBuffer buf = ByteBuffer.allocate(fileContent.length()+200);
+				int utf8FileContentLength = fileContent.getBytes("utf-8").length;
+				ByteBuffer buf = ByteBuffer.allocate(utf8FileContentLength+200);
 				buf.clear();
 				// 写入缓冲区
 				buf.put("HTTP/1.1 200 OK \r\n".getBytes());
 				buf.put("Content-Type: text/html;charset=utf-8 \r\n".getBytes());
-				buf.put(("Content-Length: " + fileContent.length() + "\r\n").getBytes());
-				System.out.println("fileContent.length: "+fileContent.length());
+				buf.put(("Content-Length: " + utf8FileContentLength + "\r\n").getBytes());
+				System.out.println("fileContent.length: "+fileContent.length()+"	fileContent.getBytes(utf-8).length:"+utf8FileContentLength);
 				buf.put("\r\n".getBytes());
 				buf.put(fileContent.getBytes());
 				// 变化缓冲区的limit指针，方便写入
