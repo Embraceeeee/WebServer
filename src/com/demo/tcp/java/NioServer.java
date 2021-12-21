@@ -3,6 +3,9 @@ package com.demo.tcp.java;
 import com.fasterxml.jackson.dataformat.xml.JacksonXmlModule;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetSocketAddress;
@@ -24,7 +27,7 @@ public class NioServer {
 	public static void main(String[] args) throws Exception {
 		// TODO Auto-generated method stub
 
-		InputStream input = Server.class.getResourceAsStream("../config/config.xml");
+		InputStream input = Server.class.getResourceAsStream("../assets/config.xml");
 
 		JacksonXmlModule module = new JacksonXmlModule();
 		// 核心对象
@@ -32,12 +35,13 @@ public class NioServer {
 		// 读取字节流并返回一个 JavaBean
 		Config config = (Config) mapper.readValue(input, Config.class);
 
-		selector(config.port);
+		selector(config);
 
 	}
 
 	/**
 	 * accept操作
+	 * 
 	 * @param key
 	 * @throws IOException
 	 */
@@ -52,10 +56,11 @@ public class NioServer {
 
 	/**
 	 * 读取数据操作
+	 * 
 	 * @param key
 	 * @throws IOException
 	 */
-	public static void handleRead(SelectionKey key) throws IOException {
+	public static void handleRead(SelectionKey key, String webAssetsPath) throws IOException {
 
 		SocketChannel sc = (SocketChannel) key.channel();
 		ByteBuffer buf = (ByteBuffer) key.attachment();
@@ -65,34 +70,36 @@ public class NioServer {
 		while (bytesRead > 0) {
 			// 进入读取状态
 			buf.flip();
-			StringBuffer httpRequestBuf = new StringBuffer();
+			StringBuffer httpRequestStrBuf = new StringBuffer();
 			// 循环 遍历 一个一个 byte去读
 			while (buf.hasRemaining()) {
 				// System.out.println((char)buf.get());
-				httpRequestBuf.append((char) buf.get());
+				httpRequestStrBuf.append((char) buf.get());
 			}
-			System.out.println("string buffer :" + httpRequestBuf.toString());
+			// System.out.println("string buffer :" + httpRequestStrBuf.toString());
 			// 对这个字符串进行换行分割
-			String[] httpRequestArray = splitHttpRequestBuf(httpRequestBuf);
+			String[] httpRequestArray = splitHttpRequestBuf(httpRequestStrBuf);
 			// 解析数据
 			HttpRequest request = parseHttpRequestArray(httpRequestArray);
 			// 打印
 			System.out.println(request.toString());
-			
-			
+			// TODO: 待写入
+			writeHtml(sc, request.resource, webAssetsPath);
 
 			buf.clear();
 			bytesRead = sc.read(buf);
 		}
 		if (bytesRead == -1) {
-			sc.close();
+//			key.cancel();
+//			sc.close();
 		}
 	}
 
 	/**
-	 * 依据换行符号分割 web浏览器的请求String， 分割成数组  
+	 * 依据换行符号分割 web浏览器的请求String， 分割成数组
+	 * 
 	 * @param httpRequestBuf
-	 * @return 
+	 * @return
 	 */
 	private static String[] splitHttpRequestBuf(StringBuffer httpRequestBuf) {
 
@@ -101,8 +108,8 @@ public class NioServer {
 	}
 
 	/**
-	 *  对 请求数组进行解析，转成请求行、请求头相关信息
-	 *  TODO: 没考虑有request body的情况，后续看看怎么解析
+	 * 对 请求数组进行解析，转成请求行、请求头相关信息 TODO: 没考虑有request body的情况，后续看看怎么解析
+	 * 
 	 * @param httpRequestArray
 	 * @return
 	 */
@@ -127,7 +134,7 @@ public class NioServer {
 		// 解析 请求头
 		for (int i = 1; i < httpRequestArray.length; i++) {
 			if (httpRequestArray[i] == "") {
-				System.out.println("parse request header for loop i stop:" + i );
+				System.out.println("parse request header for loop i stop:" + i);
 				break;
 			}
 			String sHeader = httpRequestArray[i];
@@ -143,7 +150,8 @@ public class NioServer {
 	}
 
 	/**
-	 * 从类似HTTP/1.1 这样字符串中提取数字 
+	 * 从类似HTTP/1.1 这样字符串中提取数字
+	 * 
 	 * @param s
 	 * @return
 	 */
@@ -156,6 +164,7 @@ public class NioServer {
 
 	/**
 	 * 写数据操作
+	 * 
 	 * @param key
 	 * @throws IOException
 	 */
@@ -171,22 +180,81 @@ public class NioServer {
 		// buf中暂未读完的数据先暂存
 		buf.compact();
 	}
-	
-	
-	public static void writeHtml(SelectionKey key){
-		
-		
-		
+
+	/**
+	 * 根据解析的请求头，看到请求什么资源，从静态文件根目录里面取
+	 * @param sc socket 通道 
+	 * @param resource 浏览器请求的资源
+	 * @param webAssertsPath 静态文件根目录 
+	 */
+	public static void writeHtml(SocketChannel sc, String resource, String webAssertsPath) {
+
+		System.out.println("resource:" + resource);
+		String filePath = webAssertsPath;
+
+		if (resource == null) {
+			return;
+		}
+		if (resource.equals( "/" )|| resource .equals( "/default.html")) {
+			filePath += "/default.html";
+		} else if (resource .equals( "/page.html")) {
+			filePath += "/page.html";
+		} else {
+			filePath += "/notFound.html";
+		}
+		System.out.println("filePath:" + filePath);
+		// 用相对路径 读取文件
+		try {
+
+			BufferedReader fileReader = new BufferedReader(new FileReader(filePath));
+
+			String fileContent = "";
+			String fileLine;
+
+			try {
+
+				// 读取文件
+				while ((fileLine = fileReader.readLine()) != null) {
+					fileContent += (fileLine + "\r\n");
+				}
+				ByteBuffer buf = ByteBuffer.allocate(fileContent.length()+200);
+				buf.clear();
+				// 写入缓冲区
+				buf.put("HTTP/1.1 200 OK \r\n".getBytes());
+				buf.put("Content-Type: text/html;charset=utf-8 \r\n".getBytes());
+				buf.put(("Content-Length: " + fileContent.length() + "\r\n").getBytes());
+				System.out.println("fileContent.length: "+fileContent.length());
+				buf.put("\r\n".getBytes());
+				buf.put(fileContent.getBytes());
+				// 变化缓冲区的limit指针，方便写入
+				buf.flip();
+				while (buf.hasRemaining()) {
+					// 写入数据至通道
+					sc.write(buf);
+				}
+
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
 	}
 
 	/**
-	 *  根据selector判断哪个channel需要做什么操作
+	 * 根据selector判断哪个channel需要做什么操作
+	 * 
 	 * @param port
 	 */
-	public static void selector(int port) {
+	public static void selector(Config config) {
 
 		Selector selector = null;
 		ServerSocketChannel ssc = null;
+		int port = config.port;
 
 		try {
 			// 创建选择器
@@ -210,14 +278,21 @@ public class NioServer {
 				Iterator<SelectionKey> iter = selector.selectedKeys().iterator();
 
 				while (iter.hasNext()) {
+					
 					// 遍历selectionkey
 					SelectionKey key = iter.next();
+					
+					//  避免  Exception in thread "main" java.nio.channels.CancelledKeyException
+					// 加了好像跑得贼快 server ==
+					if ( !key.isValid() ){ 
+						continue;  
+					}
 					// 根据key的状态（客户端的状态）去执行对应的操作
 					if (key.isAcceptable()) {
 						handleAccept(key);
 					}
 					if (key.isReadable()) {
-						handleRead(key);
+						handleRead(key, config.webAssetsPath);
 					}
 					if (key.isWritable()) {
 						handleWrite(key);

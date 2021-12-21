@@ -2,6 +2,6 @@
 <config>
 	<ip>localhost</ip>
 	<port>5000</port>
-	<htmlFilePath>src\\com\\demo\\tcp\\assets\\page.html</htmlFilePath>
-	<webAssetsPath>src\\com\\demo\\tcp\\assets</webAssetsPath>>
+	<htmlFilePath>src/com/demo/tcp/assets/page.html</htmlFilePath>
+	<webAssetsPath>src/com/demo/tcp/assets</webAssetsPath>>
 </config>
