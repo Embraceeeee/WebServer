@@ -116,7 +116,7 @@ public class NioServer {
 	private static HttpRequest parseHttpRequestArray(String[] httpRequestArray) {
 
 		HttpRequest request = new HttpRequest();
-		System.out.println(" HttpRequestArray length:" + httpRequestArray.length);
+		
 
 		if (httpRequestArray.length == 0) {
 			return null;
@@ -189,9 +189,7 @@ public class NioServer {
 	 */
 	public static void writeHtml(SocketChannel sc, String resource, String webAssertsPath) {
 
-		System.out.println("resource:" + resource);
 		String filePath = webAssertsPath;
-
 		if (resource == null) {
 			return;
 		}
@@ -202,7 +200,6 @@ public class NioServer {
 		} else {
 			filePath += "/notFound.html";
 		}
-		System.out.println("filePath:" + filePath);
 		// 用相对路径 读取文件
 		try {
 
@@ -224,7 +221,6 @@ public class NioServer {
 				buf.put("HTTP/1.1 200 OK \r\n".getBytes());
 				buf.put("Content-Type: text/html;charset=utf-8 \r\n".getBytes());
 				buf.put(("Content-Length: " + utf8FileContentLength + "\r\n").getBytes());
-				System.out.println("fileContent.length: "+fileContent.length()+"	fileContent.getBytes(utf-8).length:"+utf8FileContentLength);
 				buf.put("\r\n".getBytes());
 				buf.put(fileContent.getBytes());
 				// 变化缓冲区的limit指针，方便写入
@@ -232,6 +228,7 @@ public class NioServer {
 				while (buf.hasRemaining()) {
 					// 写入数据至通道
 					sc.write(buf);
+					
 				}
 
 			} catch (IOException e) {
